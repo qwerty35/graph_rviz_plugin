@@ -58,9 +58,9 @@ public:
   bool data_update_ = true;
   QCPGraph::LineStyle line_style_ = QCPGraph::lsLine;
   QCPScatterStyle::ScatterShape scatter_shape_ = QCPScatterStyle::ssCross;
-  QVector<double> topic_data_;
+  QVector<QVector<double>> topic_data_;
   QVector<double> topic_time_;
-  QVector<double> getTopicData();
+  QVector<QVector<double>> getTopicData();
   QVector<double> getTopicTime();
   void startRefreshData();
   void stopRefreshData();
@@ -107,7 +107,7 @@ private:
   void uint64Callback(const std_msgs::UInt64ConstPtr &msg);
   void uint64MultiArrayCallback(const std_msgs::UInt64MultiArrayConstPtr &msg);
   void pushData(const double Data, const ros::Time now);
-  void pushDataMA(const std::vector<double> Data);
+  void pushDataMA(const std::vector<double>& Data, const ros::Time now);
 };
 
 }

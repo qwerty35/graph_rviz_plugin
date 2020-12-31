@@ -85,22 +85,52 @@ LinePanel::~LinePanel()
 
 void LinePanel::graphInit()
 {
+  int graph_index = 0;
   for (unsigned i = 0; i < displayed_topics_.size(); i++)
   {
-    plot_->addGraph();
-    plot_->graph(i)->removeFromLegend();
-    plot_->graph(i)->setName(QString::fromStdString(displayed_topics_.at(i)->topic_name_));
-    plot_->graph(i)->addToLegend();
+    if(displayed_topics_.at(i)->topic_data_.size() < 2){
+      plot_->addGraph();
+      plot_->graph(graph_index)->removeFromLegend();
+      plot_->graph(graph_index)->setName(QString::fromStdString(displayed_topics_.at(i)->topic_name_));
+      plot_->graph(graph_index)->addToLegend();
+      graph_index++;
+    }
+    else{
+      for(unsigned j = 0; j < displayed_topics_.at(i)->topic_data_.size(); j++){
+        if(plot_->graphCount() < graph_index + 1){
+            plot_->addGraph();
+        }
+        plot_->graph(graph_index)->removeFromLegend();
+        plot_->graph(graph_index)->setName(QString::fromStdString(displayed_topics_.at(i)->topic_name_ + "/" + std::to_string(j)));
+        plot_->graph(graph_index)->addToLegend();
+        graph_index++;
+      }
+    }
   }
 }
 
 void LinePanel::graphSettingsUpdate()
 {
+  int graph_index = 0;
   for (unsigned i = 0; i < displayed_topics_.size(); i++)
   {
-    plot_->graph(i)->setPen(QPen(displayed_topics_.at(i)->color_, displayed_topics_.at(i)->thickness_));
-    plot_->graph(i)->setLineStyle(displayed_topics_.at(i)->line_style_);
-    plot_->graph(i)->setVisible(displayed_topics_.at(i)->displayed_);
+    int n = displayed_topics_.at(i)->topic_data_.size();
+    if(displayed_topics_.at(i)->topic_data_.size() < 2){
+      plot_->graph(graph_index)->setPen(QPen(displayed_topics_.at(i)->color_, displayed_topics_.at(i)->thickness_));
+      plot_->graph(graph_index)->setLineStyle(displayed_topics_.at(i)->line_style_);
+      plot_->graph(graph_index)->setVisible(displayed_topics_.at(i)->displayed_);
+      graph_index++;
+    }
+    else {
+      QColor qColor;
+      for (int j = 0; j < n; j++) {
+        qColor.setHsvF(1.0/n * j, 1.0, 1.0, 1.0);
+        plot_->graph(graph_index)->setPen(QPen(qColor, displayed_topics_.at(i)->thickness_));
+        plot_->graph(graph_index)->setLineStyle(displayed_topics_.at(i)->line_style_);
+        plot_->graph(graph_index)->setVisible(displayed_topics_.at(i)->displayed_);
+        graph_index++;
+      }
+    }
   }
 
   plot_->replot();
@@ -108,11 +138,12 @@ void LinePanel::graphSettingsUpdate()
 
 void LinePanel::graphUpdate()
 {
+  int graph_index = 0;
   for (unsigned i = 0; i < displayed_topics_.size(); i++)
   {
     if (displayed_topics_.at(i)->data_update_ == true)
     {
-      QVector<double> topic_data = displayed_topics_.at(i)->getTopicData();
+      QVector<QVector<double>> topic_data = displayed_topics_.at(i)->getTopicData();
       QVector<double> topic_time = displayed_topics_.at(i)->getTopicTime();
 
       if (yaxis_rescale_auto_ == true)
@@ -130,7 +161,21 @@ void LinePanel::graphUpdate()
           plot_->xAxis->setRange(5, w_time_, Qt::AlignRight);
       }
 
-      plot_->graph(i)->setData(topic_time, topic_data, true);
+      if(plot_->graphCount() < graph_index + topic_data.size()){
+          graphInit();
+          graphSettingsUpdate();
+      }
+      if(topic_data.size() == 1){
+        plot_->graph(graph_index)->setData(topic_time, topic_data[0], true);
+        graph_index++;
+      }
+      else {
+        for(auto & data : topic_data){
+          plot_->graph(graph_index)->setData(topic_time, data, true);
+          graph_index++;
+        }
+      }
+
       displayed_topics_.at(i)->data_update_ = false;
       plot_->replot();
     }
@@ -235,6 +280,8 @@ void LinePanel::load(const rviz::Config &config)
   graphInit();
   graphSettingsUpdate();
   Q_EMIT enableLegend(legend_enable_);
+
+  startPauseClicked(); //TODO: add parameter
 }
 
 void LinePanel::save(rviz::Config config) const

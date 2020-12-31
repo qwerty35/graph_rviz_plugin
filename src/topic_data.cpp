@@ -78,6 +78,9 @@ void TopicData::startRefreshData()
 
 void TopicData::clearData()
 {
+  for(auto & data : topic_data_){
+      data.clear();
+  }
   topic_data_.clear();
   topic_time_.clear();
 }
@@ -93,8 +96,11 @@ void TopicData::pushData(const double data, const ros::Time now)
   
   try
   {
+    if(topic_data_.empty()){
+        topic_data_.resize(1);
+    }
     topic_time_.push_back(time);
-    topic_data_.push_back(data);
+    topic_data_[0].push_back(data);
   }
   catch (const std::exception &e)
   {
@@ -105,20 +111,20 @@ void TopicData::pushData(const double data, const ros::Time now)
   }
 }
 
-void TopicData::pushDataMA(const std::vector<double> data)
+void TopicData::pushDataMA(const std::vector<double>& data, const ros::Time now)
 {
+  double time = (now.toSec() - begin_.toSec());
+  int n = data.size();
+
   try
   {
-    // clear old topic_data
-    clearData();
-    std::vector<double> fake_time(data.size());
-    std::iota (std::begin(fake_time), std::end(fake_time), 0);
-    std::vector<double> vecDouble(data.begin(), data.end());
-    // fill in new data
-    QVector<double> data_double = QVector<double>::fromStdVector(vecDouble);
-    QVector<double> time_double = QVector<double>::fromStdVector(fake_time);
-    topic_data_ = data_double;
-    topic_time_ = time_double;
+    if(topic_data_.size() < n){
+      topic_data_.resize(data.size());
+    }
+    for(int i = 0; i < n; i++){
+        topic_data_[i].push_back(data[i]);
+    }
+    topic_time_.push_back(time);
   }
   catch (const std::exception &e)
   {
@@ -154,7 +160,7 @@ void TopicData::float32MultiArrayCallback(const std_msgs::Float32MultiArrayConst
 {
   std::lock_guard<std::mutex> guard(data_mutex_);
   std::vector<double> vecDouble(msg->data.begin(), msg->data.end());
-  pushDataMA(vecDouble);
+  pushDataMA(vecDouble, ros::Time::now());
   data_update_ = true;
 }
 
@@ -170,7 +176,7 @@ void TopicData::float64MultiArrayCallback(const std_msgs::Float64MultiArrayConst
 {
   std::lock_guard<std::mutex> guard(data_mutex_);
   std::vector<double> vecDouble(msg->data.begin(), msg->data.end());
-  pushDataMA(vecDouble);
+  pushDataMA(vecDouble, ros::Time::now());
   data_update_ = true;
 }
 
@@ -186,7 +192,7 @@ void TopicData::int8MultiArrayCallback(const std_msgs::Int8MultiArrayConstPtr &m
 {
   std::lock_guard<std::mutex> guard(data_mutex_);
   std::vector<double> vecDouble(msg->data.begin(), msg->data.end());
-  pushDataMA(vecDouble);
+  pushDataMA(vecDouble, ros::Time::now());
   data_update_ = true;
 }
 
@@ -202,7 +208,7 @@ void TopicData::int16MultiArrayCallback(const std_msgs::Int16MultiArrayConstPtr 
 {
   std::lock_guard<std::mutex> guard(data_mutex_);
   std::vector<double> vecDouble(msg->data.begin(), msg->data.end());
-  pushDataMA(vecDouble);
+  pushDataMA(vecDouble, ros::Time::now());
   data_update_ = true;
 }
 
@@ -218,7 +224,7 @@ void TopicData::int32MultiArrayCallback(const std_msgs::Int32MultiArrayConstPtr 
 {
   std::lock_guard<std::mutex> guard(data_mutex_);
   std::vector<double> vecDouble(msg->data.begin(), msg->data.end());
-  pushDataMA(vecDouble);
+  pushDataMA(vecDouble, ros::Time::now());
   data_update_ = true;
 }
 
@@ -234,7 +240,7 @@ void TopicData::int64MultiArrayCallback(const std_msgs::Int64MultiArrayConstPtr 
 {
   std::lock_guard<std::mutex> guard(data_mutex_);
   std::vector<double> vecDouble(msg->data.begin(), msg->data.end());
-  pushDataMA(vecDouble);
+  pushDataMA(vecDouble, ros::Time::now());
   data_update_ = true;
 }
 
@@ -258,7 +264,7 @@ void TopicData::uint8MultiArrayCallback(const std_msgs::UInt8MultiArrayConstPtr 
 {
   std::lock_guard<std::mutex> guard(data_mutex_);
   std::vector<double> vecDouble(msg->data.begin(), msg->data.end());
-  pushDataMA(vecDouble);
+  pushDataMA(vecDouble, ros::Time::now());
   data_update_ = true;
 }
 
@@ -274,7 +280,7 @@ void TopicData::uint16MultiArrayCallback(const std_msgs::UInt16MultiArrayConstPt
 {
   std::lock_guard<std::mutex> guard(data_mutex_);
   std::vector<double> vecDouble(msg->data.begin(), msg->data.end());
-  pushDataMA(vecDouble);
+  pushDataMA(vecDouble, ros::Time::now());
   data_update_ = true;
 }
 
@@ -290,7 +296,7 @@ void TopicData::uint32MultiArrayCallback(const std_msgs::UInt32MultiArrayConstPt
 {
   std::lock_guard<std::mutex> guard(data_mutex_);
   std::vector<double> vecDouble(msg->data.begin(), msg->data.end());
-  pushDataMA(vecDouble);
+  pushDataMA(vecDouble, ros::Time::now());
   data_update_ = true;
 }
 
@@ -306,11 +312,11 @@ void TopicData::uint64MultiArrayCallback(const std_msgs::UInt64MultiArrayConstPt
 {
   std::lock_guard<std::mutex> guard(data_mutex_);
   std::vector<double> vecDouble(msg->data.begin(), msg->data.end());
-  pushDataMA(vecDouble);
+  pushDataMA(vecDouble, ros::Time::now());
   data_update_ = true;
 }
 
-QVector<double> TopicData::getTopicData()
+QVector<QVector<double>> TopicData::getTopicData()
 {
   std::lock_guard<std::mutex> guard(data_mutex_);
   return topic_data_;
