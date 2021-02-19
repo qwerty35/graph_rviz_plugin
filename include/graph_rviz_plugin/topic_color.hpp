@@ -30,7 +30,8 @@ public:
           std::make_pair<QString, QColor>("Yellow", Qt::GlobalColor::yellow),
           std::make_pair<QString, QColor>("Dark Yellow", Qt::GlobalColor::darkYellow),
           std::make_pair<QString, QColor>("Dark Gray", Qt::GlobalColor::darkGray),
-          std::make_pair<QString, QColor>("Light Gray", Qt::GlobalColor::lightGray)
+          std::make_pair<QString, QColor>("Light Gray", Qt::GlobalColor::lightGray),
+          std::make_pair<QString, QColor>("HSV", Qt::GlobalColor::transparent) // for HSV colormap
       };
   QColor getColorFromIndex(const int index) const;
   int getIndexFromColor(const QColor color) const;

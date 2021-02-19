@@ -12,6 +12,7 @@
 #include <deque>
 #include <graph_rviz_plugin/topic_data.hpp>
 #include <graph_rviz_plugin/topic_color.hpp>
+#include <graph_rviz_plugin/topic_style.hpp>
 
 namespace graph_rviz_plugin
 {
@@ -30,8 +31,10 @@ protected Q_SLOTS:
 private:
   std::deque<std::shared_ptr<TopicData>> displayed_topics_;
   TopicColor topic_color_;
+  TopicStyle topic_style_;
   std::vector<QCheckBox *> topic_buttons_;
-  std::vector<QComboBox *> topic_combobox_;
+  std::vector<QComboBox *> topic_color_combobox_;
+  std::vector<QComboBox *> topic_style_combobox_;
   std::vector<QSpinBox *> topic_spinbox_;
 };
 

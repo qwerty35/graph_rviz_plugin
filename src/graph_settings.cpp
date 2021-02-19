@@ -11,9 +11,11 @@ GraphSettings::GraphSettings(std::deque<std::shared_ptr<TopicData>> displayed_to
   QVBoxLayout *configure_layout = new QVBoxLayout;
   setLayout(configure_layout);
   QStringList color_list = topic_color_.getColorsStringList();
+  QStringList style_list = topic_style_.getStylesStringList();
   QTableWidget *main_table = new QTableWidget;
-  main_table->setColumnCount(3);
-  QStringList horiz_header_names = {"Display", "Color", "Thickness"};
+  main_table->setColumnCount(4);
+  QStringList horiz_header_names = {"Display", "Color", "Thickness", "Style"};
+
   QStringList vertical_header_names;
   main_table->setHorizontalHeaderLabels(horiz_header_names);
   main_table->setRowCount(displayed_topics_.size());
@@ -38,7 +40,7 @@ GraphSettings::GraphSettings(std::deque<std::shared_ptr<TopicData>> displayed_to
 
     // Color
     QComboBox *color_selection_combobox = new QComboBox;
-    topic_combobox_.push_back(color_selection_combobox);
+    topic_color_combobox_.push_back(color_selection_combobox);
     color_selection_combobox->setObjectName(QString::fromStdString(displayed_topics_.at(i)->topic_name_));
     color_selection_combobox->addItems(color_list);
     color_selection_combobox->setCurrentIndex(topic_color_.getIndexFromColor(displayed_topics_.at(i)->color_));
@@ -51,6 +53,14 @@ GraphSettings::GraphSettings(std::deque<std::shared_ptr<TopicData>> displayed_to
     thickness_spin_box->setRange(1, 10);
     thickness_spin_box->setValue(displayed_topics_.at(i)->thickness_);
     main_table->setCellWidget(i, 2, thickness_spin_box);
+
+    // Line style
+    QComboBox *style_selection_combobox = new QComboBox;
+    topic_style_combobox_.push_back(style_selection_combobox);
+    style_selection_combobox->setObjectName(QString::fromStdString(displayed_topics_.at(i)->topic_name_));
+    style_selection_combobox->addItems(style_list);
+    style_selection_combobox->setCurrentIndex(topic_style_.getIndexFromStyle(displayed_topics_.at(i)->style_));
+    main_table->setCellWidget(i, 3, style_selection_combobox);
   }
 
   main_table->resizeColumnsToContents();
@@ -93,7 +103,7 @@ void GraphSettings::okClicked()
     }
   }
 
-  for (auto combobox : topic_combobox_)
+  for (auto combobox : topic_color_combobox_)
   {
     for (unsigned i = 0; i < displayed_topics_.size(); i++)
     {
@@ -101,7 +111,18 @@ void GraphSettings::okClicked()
       {
         const int index = combobox->currentIndex();
         displayed_topics_.at(i)->color_ = topic_color_.getColorFromIndex(index);
+      }
+    }
+  }
 
+  for (auto combobox : topic_style_combobox_)
+  {
+    for (unsigned i = 0; i < displayed_topics_.size(); i++)
+    {
+      if ((displayed_topics_.at(i)->topic_name_) == combobox->objectName().toStdString())
+      {
+        const int index = combobox->currentIndex();
+        displayed_topics_.at(i)->style_ = topic_style_.getStyleFromIndex(index);
       }
     }
   }

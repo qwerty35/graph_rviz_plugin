@@ -33,6 +33,7 @@ set(
   ${PROJECT_NAME}_selection_topics
   ${PROJECT_NAME}_settings
   ${PROJECT_NAME}_topic_color
+  ${PROJECT_NAME}_topic_style
   ${PROJECT_NAME}_topics_data
 )
 
@@ -108,6 +109,21 @@ add_dependencies(
   ${catkin_EXPORTED_TARGETS}
 )
 
+## TopicStyle
+add_library(
+        ${PROJECT_NAME}_topic_style
+        include/${PROJECT_NAME}/topic_style.hpp
+        src/topic_style.cpp
+)
+target_link_libraries(
+        ${PROJECT_NAME}_topic_style
+        Qt5::Widgets
+)
+add_dependencies(
+        ${PROJECT_NAME}_topic_style
+        ${catkin_EXPORTED_TARGETS}
+)
+
 ## SelectionTopics
 add_library(
   ${PROJECT_NAME}_selection_topics
@@ -135,12 +151,14 @@ target_link_libraries(
   ${PROJECT_NAME}_graph_settings
   ${PROJECT_NAME}_topics_data
   ${PROJECT_NAME}_topic_color
+  ${PROJECT_NAME}_topic_style
   Qt5::Widgets
 )
 add_dependencies(
   ${PROJECT_NAME}_graph_settings
   ${PROJECT_NAME}_topics_data
   ${PROJECT_NAME}_topic_color
+  ${PROJECT_NAME}_topic_style
   ${catkin_EXPORTED_TARGETS}
 )
 
@@ -173,6 +191,7 @@ target_link_libraries(
   ${PROJECT_NAME}_settings
   ${PROJECT_NAME}_topics_data
   ${PROJECT_NAME}_topic_color
+  ${PROJECT_NAME}_topic_style
   Qt5::Widgets
   ${catkin_LIBRARIES}
 )
@@ -184,6 +203,7 @@ add_dependencies(
   ${PROJECT_NAME}_settings
   ${PROJECT_NAME}_topics_data
   ${PROJECT_NAME}_topic_color
+  ${PROJECT_NAME}_topic_style
   ${catkin_EXPORTED_TARGETS}
 )
 
@@ -201,6 +221,7 @@ target_link_libraries(
   ${PROJECT_NAME}_settings
   ${PROJECT_NAME}_topics_data
   ${PROJECT_NAME}_topic_color
+  ${PROJECT_NAME}_topic_style
   Qt5::Widgets
   ${catkin_LIBRARIES}
 )
@@ -212,6 +233,7 @@ add_dependencies(
   ${PROJECT_NAME}_settings
   ${PROJECT_NAME}_topics_data
   ${PROJECT_NAME}_topic_color
+  ${PROJECT_NAME}_topic_style
   ${catkin_EXPORTED_TARGETS}
 )
 

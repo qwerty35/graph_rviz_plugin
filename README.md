@@ -1,7 +1,5 @@
-[![Institut Maupertuis logo](http://www.institutmaupertuis.fr/media/gabarit/logo.png)](http://www.institutmaupertuis.fr)
-
-# Overview
-This package contains two Qt RViz panels that allows users to draw graphs of topics values dynamically (line graph) and to visualise image histograms.
+# graph_rviz_plugin
+RViz plugin for ROS MultiArray msg plot. 
 
 Line graph supported built-in types are:
 - `bool`
@@ -33,10 +31,19 @@ Line graph supported built-in types are:
 Histogram supported types are:
 - sensor_msgs/Image
 
+# Acknowledgment
+This work is based on Institut Maupertuis (https://gitlab.com/InstitutMaupertuis/graph_rviz_plugin) and flynneva's work (https://github.com/flynneva/graph_rviz_plugin)
+
 # Screenshots
-- Graph line
+- Line graph
 
 ![Line graph panel](documentation/line_graph_panel.png)
+
+- Line graph for MultiArray message
+
+![Line graph panel for multiarray](documentation/line_graph_panel_multiarray.png)
+
+:Note: Currently, color of the lines is automatically selected from HSV colormap. //TODO: better color selection
 
 - Histogram
 
@@ -44,30 +51,21 @@ Histogram supported types are:
 
 :information_source: The panel configuration is saved/loaded in the RViz configuration file, this includes which topics are recorded, the graph settings and settings.
 
-# Dependencies
+# Install
+This work is tested in below environments.
+- Ubuntu 18.04, ROS Melodic (desktop-full) 
+- Ubuntu 20.04, ROS Noetic (desktop-full)
 
-## rosdep
-Install, initialize and update [rosdep](https://wiki.ros.org/rosdep).
-
-# Compiling
 Create a catkin workspace and clone the project:
 
 ```bash
-mkdir -p catkin_workspace/src
-cd catkin_workspace/src
+mkdir -p <catkin_workspace>/src
+cd <catkin_workspace>/src
 git clone https://gitlab.com/InstitutMaupertuis/graph_rviz_plugin.git
 cd ..
-```
-
-## Resolve ROS dependencies
-```bash
-rosdep install --from-paths src --ignore-src --rosdistro $ROS_DISTRO -y
-```
-
-## Compile
-```bash
 catkin_make
 ```
+
 
 # User manual
 Add the panel in Rviz by going to `Panels > Add New Panel > grah_rviz_plugin` and add `Line graph` or `Histogram`.
@@ -116,27 +114,3 @@ Allows to export the graph to a PNG, PDF or JPEG file.
 
 ## Reset
 Clears the graphs, underlying data and topics to be recorded.
-
-# `subtopic_repub.py`
-
-Republish a subtopic into another topic, useful to republish a field you want to plot, e.g.:
-
-Usage:
-```bash
-rosrun graph_rviz_plugin subtopic_repub.py /topic/subtopic/field /my_republished_field [queue_size (default 10)]
-```
-
-Examples:
-```bash
-rosrun graph_rviz_plugin subtopic_repub.py /imu/angular_velocity/x /angular_velocity_x
-rosrun graph_rviz_plugin subtopic_repub.py /hullbot/sensors/bno055/imu/angular_velocity_covariance[0] /angular_velocity_covariance_0
-```
-
-Example output:
-```bash
-rosrun graph_rviz_plugin subtopic_repub.py /imu/angular_velocity/x /angular_velocity_x
-[INFO] [1597403303.283071]: Republishing subtopic: /imu/angular_velocity/x into topic: /angular_velocity_x (with queue_size: 10)
-[INFO] [1597403303.362539]: Input topic is of type: sensor_msgs/Imu
-[INFO] [1597403303.363576]: Got submsg of type: std_msgs/Float64
-```
-

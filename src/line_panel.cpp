@@ -112,20 +112,34 @@ void LinePanel::graphInit()
 void LinePanel::graphSettingsUpdate()
 {
   int graph_index = 0;
+  QColor qColor;
   for (unsigned i = 0; i < displayed_topics_.size(); i++)
   {
-    int n = displayed_topics_.at(i)->topic_data_.size();
-    if(displayed_topics_.at(i)->topic_data_.size() < 2){
-      plot_->graph(graph_index)->setPen(QPen(displayed_topics_.at(i)->color_, displayed_topics_.at(i)->thickness_));
+    int topic_data_size = displayed_topics_.at(i)->topic_data_.size();
+    if(topic_data_size < 2){
+      //transparent == HSV colormap, HSV is not used in single msg
+      if(displayed_topics_.at(i)->color_ == Qt::GlobalColor::transparent){
+        qColor = Qt::GlobalColor::black;
+      }
+      else {
+        qColor = displayed_topics_.at(i)->color_;
+      }
+      plot_->graph(graph_index)->setPen(QPen(qColor, displayed_topics_.at(i)->thickness_,
+                                             displayed_topics_.at(i)->style_));
       plot_->graph(graph_index)->setLineStyle(displayed_topics_.at(i)->line_style_);
       plot_->graph(graph_index)->setVisible(displayed_topics_.at(i)->displayed_);
       graph_index++;
     }
     else {
-      QColor qColor;
-      for (int j = 0; j < n; j++) {
-        qColor.setHsvF(1.0/n * j, 1.0, 1.0, 1.0);
-        plot_->graph(graph_index)->setPen(QPen(qColor, displayed_topics_.at(i)->thickness_));
+      for (int j = 0; j < topic_data_size; j++) {
+        if(displayed_topics_.at(i)->color_ == Qt::GlobalColor::transparent){ //transparent == HSV colormap
+          qColor.setHsvF(1.0 / topic_data_size * j, 1.0, 1.0, 1.0);
+        }
+        else{
+          qColor = displayed_topics_.at(i)->color_;
+        }
+        plot_->graph(graph_index)->setPen(QPen(qColor, displayed_topics_.at(i)->thickness_,
+                                               displayed_topics_.at(i)->style_));
         plot_->graph(graph_index)->setLineStyle(displayed_topics_.at(i)->line_style_);
         plot_->graph(graph_index)->setVisible(displayed_topics_.at(i)->displayed_);
         graph_index++;
@@ -250,6 +264,7 @@ void LinePanel::load(const rviz::Config &config)
     QString topic_type;
     int topic_thickness;
     int color_index;
+    int style_index;
 
     if (!config.mapGetString("topic_" + QString::number(i) + "_name", &topic_name))
       break;
@@ -263,10 +278,14 @@ void LinePanel::load(const rviz::Config &config)
     if (!config.mapGetInt("topic_" + QString::number(i) + "_color", &color_index))
       break;
 
+    if (!config.mapGetInt("topic_" + QString::number(i) + "_style", &style_index))
+      break;
+
     std::shared_ptr<TopicData> topic_data = std::make_shared<TopicData>(topic_name.toStdString(),
                                                                         topic_type.toStdString(), nh_);
     topic_data->thickness_ = topic_thickness;
     topic_data->color_ = topic_color_class_.getColorFromIndex(color_index);
+    topic_data->style_ = topic_style_class_.getStyleFromIndex(style_index);
     displayed_topics_.push_back(topic_data);
     ++i;
   }
@@ -281,7 +300,7 @@ void LinePanel::load(const rviz::Config &config)
   graphSettingsUpdate();
   Q_EMIT enableLegend(legend_enable_);
 
-  startPauseClicked(); //TODO: add parameter
+  startPauseClicked(); //TODO: add parameter for auto start
 }
 
 void LinePanel::save(rviz::Config config) const
@@ -305,6 +324,8 @@ void LinePanel::save(rviz::Config config) const
     config.mapSetValue("topic_" + QString::number(i) + "_thickness", displayed_topics_.at(i)->thickness_);
     config.mapSetValue("topic_" + QString::number(i) + "_color",
                        topic_color_class_.getIndexFromColor(displayed_topics_.at(i)->color_));
+    config.mapSetValue("topic_" + QString::number(i) + "_style",
+                       topic_style_class_.getIndexFromStyle(displayed_topics_.at(i)->style_));
   }
 }
 
@@ -453,9 +474,12 @@ void LinePanel::topicsSelectionClicked()
     resetClicked();
     displayed_topics_ = topic_window->displayed_topics_;
 
-    for (unsigned i = 0; i < displayed_topics_.size(); i++)
+    for (unsigned i = 0; i < displayed_topics_.size(); i++) {
       displayed_topics_.at(i)->color_ = topic_color_class_.getColorFromIndex(
-          i % ((topic_color_class_.colors_list_).size()));
+            i % ((topic_color_class_.colors_list_).size()));
+      displayed_topics_.at(i)->style_ = topic_style_class_.getStyleFromIndex(
+              i % ((topic_style_class_.style_list_).size()));
+    }
 
     graphInit();
     graphSettingsUpdate();

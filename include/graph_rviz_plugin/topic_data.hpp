@@ -53,6 +53,7 @@ public:
   const std::string topic_name_;
   const std::string topic_type_;
   QColor color_ = Qt::GlobalColor::black;
+  Qt::PenStyle style_ = Qt::SolidLine;
   unsigned thickness_ = 1;
   bool displayed_ = true;
   bool data_update_ = true;

@@ -9,6 +9,7 @@
 #include <graph_rviz_plugin/selection_topics.hpp>
 #include <graph_rviz_plugin/settings.hpp>
 #include <graph_rviz_plugin/topic_color.hpp>
+#include <graph_rviz_plugin/topic_style.hpp>
 #include <graph_rviz_plugin/topic_data.hpp>
 #include <memory>
 #include <mutex>
@@ -71,6 +72,7 @@ private:
   QPushButton *export_button_;
   QTimer *graph_refresh_timer_;
   TopicColor topic_color_class_;
+  TopicStyle topic_style_class_;
   QCustomPlot *plot_;
   QString export_directory_ = "";
   std::deque<std::shared_ptr<TopicData>> displayed_topics_;
