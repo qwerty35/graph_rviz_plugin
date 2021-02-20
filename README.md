@@ -41,7 +41,7 @@ This work is based on Institut Maupertuis (https://gitlab.com/InstitutMaupertuis
 
 - Line graph for MultiArray message
 
-![Line graph panel for multiarray](documentation/line_graph_panel_multiarray.png)
+![Line graph panel for multiarray](documentation/line_graph_panel_multiarray2.png)
 
 :Note: You can automatically select the line color using HSV colormap by `Graph settings > Color > HSV`
 
